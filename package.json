@@ -1,0 +1,23 @@
+{
+  "name": "ts-to-elysia-typebox",
+  "version": "0.0.1",
+  "bin": {
+    "ts-to-elysia-typebox": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup-node ./src/index.ts"
+  },
+  "main": "dist/index.js",
+  "license": "ISC",
+  "dependencies": {
+    "@sinclair/typebox-codegen": "^0.10.5"
+  },
+  "peerDependencies": {
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "tsup": "^8.0.2"
+  }
+}
