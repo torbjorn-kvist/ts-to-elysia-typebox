@@ -1,21 +1,37 @@
 #!/usr/bin/env node
 
+import { program } from 'commander'
+
 import * as Codegen from '@sinclair/typebox-codegen'
 import * as fs from 'fs'
 import * as prettier from 'prettier'
 import ts from 'typescript'
+import { generateRecrusivePattern } from './recursive-pattern'
+
+program
+  .requiredOption('-i, --input <input>', 'input file')
+  .requiredOption('-o, --output <output>', 'output file')
+  .option('-e, --exclude <exclude>', 'exclude interfaces')
+  .option('-p, --payload', 'exclude general interfaces from payload')
+
+program.parse()
+
+const options = program.opts()
 
 // Parse command-line arguments
-const [, , inputFileName, outputFileName] = process.argv
+let ignoreInterfaces = new Set<string>()
+if (options.payload) {
+  const ignore = ['PayloadMigration', 'Auth', 'PayloadPreference', 'Config', 'AdminAuthOperations']
+  ignoreInterfaces = new Set([...ignoreInterfaces, ...ignore])
+}
 
-if (!inputFileName || !outputFileName) {
-  console.error('Usage: <input-file> <output-file>')
-  process.exit(1)
+if (options.exclude) {
+  ignoreInterfaces = new Set([...ignoreInterfaces, ...options.exclude.split(',')])
 }
 
 // Read and parse the source file
-const sourceCode = fs.readFileSync(inputFileName, 'utf-8')
-const sourceFile = ts.createSourceFile(inputFileName, sourceCode, ts.ScriptTarget.ES2023, true)
+const sourceCode = fs.readFileSync(options.input, 'utf-8')
+const sourceFile = ts.createSourceFile(options.input, sourceCode, ts.ScriptTarget.ES2023, true)
 
 // Store interface dependencies and declarations
 const interfaceDependencies: Map<string, Set<string>> = new Map()
@@ -39,7 +55,15 @@ function collectDependencies(node: ts.TypeNode): Set<string> {
 
 // Visit nodes to collect interfaces and their dependencies
 function visitNode(node: ts.Node) {
+  if (ts.isModuleDeclaration(node) && node.name && ts.isStringLiteral(node.name)) {
+    return // Skip processing for external module declarations
+  }
+
+  // Ignore declare module nodes
   if (ts.isInterfaceDeclaration(node)) {
+    if (ignoreInterfaces.has(node.name.text)) {
+      return
+    }
     const interfaceName = node.name.text
     interfaceDeclarations.set(interfaceName, node)
 
@@ -60,61 +84,51 @@ function visitNode(node: ts.Node) {
 // Start AST traversal to collect interface dependencies
 visitNode(sourceFile)
 
-// Topological sort of interfaces based on dependencies
-function topologicalSort(dependencies: Map<string, Set<string>>): string[] {
-  const sorted: string[] = []
-  const visited: Set<string> = new Set()
+let typeboxCode = ''
+let templateCode = ``
+let usageCode = ``
 
-  function visit(interfaceName: string) {
-    if (!visited.has(interfaceName)) {
-      visited.add(interfaceName)
-      const deps = dependencies.get(interfaceName)
-      if (deps) {
-        deps.forEach(dep => {
-          if (interfaceDeclarations.has(dep)) {
-            visit(dep)
-          }
-        })
+async function buildInterfaceCode() {
+  const interfacesWithoutDependencies = Array.from(interfaceDependencies.entries())
+    .filter(([, dependencies]) => dependencies.size === 0)
+    .map(([interfaceName]) => interfaceName)
+
+  for (const [interfaceName, interfaceDeclaration] of interfaceDeclarations) {
+    const code = sourceCode.slice(interfaceDeclaration.pos, interfaceDeclaration.end) + '\n\n'
+    const typebox = Codegen.TypeScriptToTypeBox.Generate(code, { useTypeBoxImport: false, useIdentifiers: false })
+
+    const dependencies = Array.from(interfaceDependencies.get(interfaceName) || [])
+    if (dependencies.length) {
+      const depsAndSubDebs: Record<string, string[]> = {}
+      for (const dep of dependencies) {
+        const subDependencies = interfaceDependencies.get(dep)
+        depsAndSubDebs[dep] = subDependencies ? Array.from(subDependencies) : []
       }
-      sorted.push(interfaceName)
+
+      const recursive = generateRecrusivePattern(typebox, depsAndSubDebs, interfacesWithoutDependencies)
+      templateCode += recursive.template + '\n\n'
+      usageCode += recursive.usage + '\n\n'
+    } else {
+      typeboxCode += typebox + '\n\n'
     }
   }
-
-  // Visit all interfaces
-  interfaceDeclarations.forEach((_, interfaceName) => visit(interfaceName))
-
-  return sorted
 }
 
-// Sort interfaces based on dependencies
-const sortedInterfaces = topologicalSort(interfaceDependencies)
-
-// Rebuild the file with sorted interfaces
-let reorderedCode = ''
-const writtenInterfaces = new Set<string>() // To track already written interfaces
-
-sortedInterfaces.forEach(interfaceName => {
-  const interfaceDeclaration = interfaceDeclarations.get(interfaceName)
-  if (interfaceDeclaration && !writtenInterfaces.has(interfaceName)) {
-    reorderedCode += sourceCode.slice(interfaceDeclaration.pos, interfaceDeclaration.end) + '\n\n'
-    writtenInterfaces.add(interfaceName) // Mark as written
-  }
-})
-
-// Append any remaining parts of the file (like imports, comments)
-const generatedTypebox = Codegen.TypeScriptToTypeBox.Generate(reorderedCode).replace(
-  /import\s*\{\s*Type\s*,\s*Static\s*\}\s*from\s*'@sinclair\/typebox'/,
-  `import { Static, t as Type } from 'elysia'`,
-)
-
 async function run() {
-  // Write the output to a new file
-  const prettierConfig = await prettier.resolveConfig(inputFileName!)
-  const formatedCode = await prettier.format(generatedTypebox, {
+  const prettierConfig = await prettier.resolveConfig(options.input!)
+  await buildInterfaceCode()
+
+  let completeCode = `import { Static, t as Type } from 'elysia';\n\n`
+  if (templateCode.length > 0) {
+    completeCode = `import { Static, TSchema, t as Type } from 'elysia';\n\n`
+  }
+
+  completeCode += typeboxCode + templateCode + usageCode
+  const formatedCode = await prettier.format(completeCode, {
     ...prettierConfig,
     parser: 'typescript',
   })
 
-  fs.writeFileSync(outputFileName!, formatedCode)
+  fs.writeFileSync(options.output!, formatedCode)
 }
 run()

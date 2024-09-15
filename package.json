@@ -1,16 +1,20 @@
 {
   "name": "ts-to-elysia-typebox",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "bin": {
     "ts-to-elysia-typebox": "dist/index.js"
   },
   "scripts": {
-    "build": "tsup-node ./src/index.ts"
+    "build": "tsup-node ./src/index.ts",
+    "test": "npx tsx src/index.ts -i tests/payload-types.ts -o tests/payload-typebox.ts -p",
+    "test:min": "npx tsx src/index.ts -i tests/payload-types.minimal.ts -o tests/payload-typebox.minimal.ts -p",
+    "test:declare": "npx tsx src/index.ts -i tests/payload-types.declare.ts -o tests/payload-typebox.declare.ts -p"
   },
   "main": "dist/index.js",
   "license": "ISC",
   "dependencies": {
-    "@sinclair/typebox-codegen": "^0.10.5"
+    "@sinclair/typebox-codegen": "^0.10.5",
+    "commander": "^12.1.0"
   },
   "peerDependencies": {
     "prettier": "^3.2.5",
@@ -18,6 +22,8 @@
   },
   "devDependencies": {
     "@types/node": "^20.12.12",
+    "elysia": "^1.1.12",
+    "prettier": "^3.2.5",
     "tsup": "^8.0.2"
   }
 }
