@@ -1,13 +1,14 @@
 {
   "name": "ts-to-elysia-typebox",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "bin": {
     "ts-to-elysia-typebox": "dist/index.js"
   },
   "scripts": {
+    "prepack": "npm run build",
     "build": "tsup-node ./src/index.ts",
     "test": "npx tsx src/index.ts -i tests/payload-types.ts -o tests/payload-typebox.ts -p",
-    "test:min": "npx tsx src/index.ts -i tests/payload-types.minimal.ts -o tests/payload-typebox.minimal.ts -p",
+    "test:min": "npx tsx src/index.ts -i tests/payload-types.minimal.ts -o tests/payload-typebox.minimal.ts -p -rmnifo",
     "test:declare": "npx tsx src/index.ts -i tests/payload-types.declare.ts -o tests/payload-typebox.declare.ts -p"
   },
   "main": "dist/index.js",

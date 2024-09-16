@@ -7,12 +7,14 @@ import * as fs from 'fs'
 import * as prettier from 'prettier'
 import ts from 'typescript'
 import { generateRecrusivePattern } from './recursive-pattern'
+import { removeNullFromOptionalProperties } from './remove-null-if-optional'
 
 program
   .requiredOption('-i, --input <input>', 'input file')
   .requiredOption('-o, --output <output>', 'output file')
   .option('-e, --exclude <exclude>', 'exclude interfaces')
   .option('-p, --payload', 'exclude general interfaces from payload')
+  .option('-rmnifo, --remove-null-if-optional', 'remove null from optional properties')
 
 program.parse()
 
@@ -93,9 +95,19 @@ async function buildInterfaceCode() {
     .filter(([, dependencies]) => dependencies.size === 0)
     .map(([interfaceName]) => interfaceName)
 
+  const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed })
+
   for (const [interfaceName, interfaceDeclaration] of interfaceDeclarations) {
-    const code = sourceCode.slice(interfaceDeclaration.pos, interfaceDeclaration.end) + '\n\n'
-    const typebox = Codegen.TypeScriptToTypeBox.Generate(code, { useTypeBoxImport: false, useIdentifiers: false })
+    let updatedInterface = interfaceDeclaration
+    if (options.removeNullIfOptional) {
+      updatedInterface = removeNullFromOptionalProperties(interfaceDeclaration)
+    }
+
+    const updatedCode = printer.printNode(ts.EmitHint.Unspecified, updatedInterface, sourceFile) + '\n\n'
+    const typebox = Codegen.TypeScriptToTypeBox.Generate(updatedCode, {
+      useTypeBoxImport: false,
+      useIdentifiers: false,
+    })
 
     const dependencies = Array.from(interfaceDependencies.get(interfaceName) || [])
     if (dependencies.length) {
