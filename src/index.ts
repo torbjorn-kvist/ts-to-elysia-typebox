@@ -23,7 +23,14 @@ const options = program.opts()
 // Parse command-line arguments
 let ignoreInterfaces = new Set<string>()
 if (options.payload) {
-  const ignore = ['PayloadMigration', 'Auth', 'PayloadPreference', 'Config', 'AdminAuthOperations']
+  const ignore = [
+    'PayloadMigration',
+    'Auth',
+    'PayloadPreference',
+    'Config',
+    'AdminAuthOperations',
+    'PayloadLockedDocument',
+  ]
   ignoreInterfaces = new Set([...ignoreInterfaces, ...ignore])
 }
 

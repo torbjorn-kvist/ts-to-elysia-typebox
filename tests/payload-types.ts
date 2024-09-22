@@ -8,54 +8,58 @@
 
 export interface Config {
   auth: {
-    admins: AdminAuthOperations;
-  };
+    admins: AdminAuthOperations
+  }
   collections: {
-    users: User;
-    categories: Category;
-    providers: Provider;
-    providersmedia: Providersmedia;
-    admins: Admin;
-    'payload-preferences': PayloadPreference;
-    'payload-migrations': PayloadMigration;
-  };
+    users: User
+    provider: Provider
+    'provider-conditions': ProviderCondition
+    'provider-methods': ProviderMethod
+    'provider-titles': ProviderTitle
+    'providers-media': ProvidersMedia
+    admins: Admin
+    'payload-locked-documents': PayloadLockedDocument
+    'payload-preferences': PayloadPreference
+    'payload-migrations': PayloadMigration
+  }
   db: {
-    defaultIDType: string;
-  };
-  globals: {};
-  locale: 'en' | 'sv';
+    defaultIDType: string
+  }
+  globals: {}
+  locale: 'en' | 'sv'
   user: Admin & {
-    collection: 'admins';
-  };
+    collection: 'admins'
+  }
 }
 export interface AdminAuthOperations {
   forgotPassword: {
-    email: string;
-    password: string;
-  };
+    email: string
+    password: string
+  }
   login: {
-    email: string;
-    password: string;
-  };
+    email: string
+    password: string
+  }
   registerFirstUser: {
-    email: string;
-    password: string;
-  };
+    email: string
+    password: string
+  }
   unlock: {
-    email: string;
-    password: string;
-  };
+    email: string
+    password: string
+  }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
-  id: string;
-  email: string;
-  firebaseUserUID: string;
-  name?: string | null;
-  bio?: string | null;
+  id: string
+  email: string
+  firebaseUserUID: string
+  name?: string | null
+  bio?: string | null
+  gender?: ('female' | 'male' | 'non-binary') | null
   locales?:
     | (
         | 'aa'
@@ -243,11 +247,11 @@ export interface User {
         | 'zh'
         | 'zu'
       )[]
-    | null;
+    | null
   devices?:
     | {
-        id?: string | null;
-        model?: string | null;
+        id?: string | null
+        model?: string | null
         locales?:
           | (
               | 'aa'
@@ -435,376 +439,467 @@ export interface User {
               | 'zh'
               | 'zu'
             )[]
-          | null;
+          | null
         tokens?:
           | {
-              token: string;
-              type: 'expo' | 'apns' | 'fcm';
-              platform?: ('ios' | 'android') | null;
-              appVersion?: string | null;
-              id?: string | null;
+              token: string
+              type: 'expo' | 'apns' | 'fcm'
+              platform?: ('ios' | 'android' | 'postman' | 'web') | null
+              appVersion?: string | null
+              id?: string | null
             }[]
-          | null;
+          | null
       }[]
-    | null;
-  thumbhash?: string | null;
-  prefix?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+    | null
+  thumbhash?: string | null
+  prefix?: string | null
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
   sizes?: {
     thumbnail?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
+      url?: string | null
+      width?: number | null
+      height?: number | null
+      mimeType?: string | null
+      filesize?: number | null
+      filename?: string | null
+    }
     image?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
+      url?: string | null
+      width?: number | null
+      height?: number | null
+      mimeType?: string | null
+      filesize?: number | null
+      filename?: string | null
+    }
+  }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: string;
-  name: string;
-  isFriskvardsEligible?: boolean | null;
-  type: 'PHYSICAL_HEALTH' | 'EMOTIONAL_HEALTH';
-  providers?: (string | Provider)[] | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "providers".
+ * via the `definition` "provider".
  */
 export interface Provider {
-  id: string;
-  status?: ('draft' | 'ready-for-review' | 'published') | null;
-  user: string | User;
-  name: string;
-  bio?: string | null;
-  categories: (string | Category)[];
-  spokenLanguages?:
-    | (
-        | 'aa'
-        | 'ab'
-        | 'ae'
-        | 'af'
-        | 'ak'
-        | 'am'
-        | 'an'
-        | 'ar'
-        | 'as'
-        | 'av'
-        | 'ay'
-        | 'az'
-        | 'ba'
-        | 'be'
-        | 'bg'
-        | 'bh'
-        | 'bi'
-        | 'bm'
-        | 'bn'
-        | 'bo'
-        | 'br'
-        | 'bs'
-        | 'ca'
-        | 'ce'
-        | 'ch'
-        | 'co'
-        | 'cr'
-        | 'cs'
-        | 'cu'
-        | 'cv'
-        | 'cy'
-        | 'da'
-        | 'de'
-        | 'dv'
-        | 'dz'
-        | 'ee'
-        | 'el'
-        | 'en'
-        | 'eo'
-        | 'es'
-        | 'et'
-        | 'eu'
-        | 'fa'
-        | 'ff'
-        | 'fi'
-        | 'fj'
-        | 'fo'
-        | 'fr'
-        | 'fy'
-        | 'ga'
-        | 'gd'
-        | 'gl'
-        | 'gn'
-        | 'gu'
-        | 'gv'
-        | 'ha'
-        | 'he'
-        | 'hi'
-        | 'ho'
-        | 'hr'
-        | 'ht'
-        | 'hu'
-        | 'hy'
-        | 'hz'
-        | 'ia'
-        | 'id'
-        | 'ie'
-        | 'ig'
-        | 'ii'
-        | 'ik'
-        | 'io'
-        | 'is'
-        | 'it'
-        | 'iu'
-        | 'ja'
-        | 'jv'
-        | 'ka'
-        | 'kg'
-        | 'ki'
-        | 'kj'
-        | 'kk'
-        | 'kl'
-        | 'km'
-        | 'kn'
-        | 'ko'
-        | 'kr'
-        | 'ks'
-        | 'ku'
-        | 'kv'
-        | 'kw'
-        | 'ky'
-        | 'la'
-        | 'lb'
-        | 'lg'
-        | 'li'
-        | 'ln'
-        | 'lo'
-        | 'lt'
-        | 'lu'
-        | 'lv'
-        | 'mg'
-        | 'mh'
-        | 'mi'
-        | 'mk'
-        | 'ml'
-        | 'mn'
-        | 'mr'
-        | 'ms'
-        | 'mt'
-        | 'my'
-        | 'na'
-        | 'nb'
-        | 'nd'
-        | 'ne'
-        | 'ng'
-        | 'nl'
-        | 'nn'
-        | 'no'
-        | 'nr'
-        | 'nv'
-        | 'ny'
-        | 'oc'
-        | 'oj'
-        | 'om'
-        | 'or'
-        | 'os'
-        | 'pa'
-        | 'pi'
-        | 'pl'
-        | 'ps'
-        | 'pt'
-        | 'qu'
-        | 'rm'
-        | 'rn'
-        | 'ro'
-        | 'ru'
-        | 'rw'
-        | 'sa'
-        | 'sc'
-        | 'sd'
-        | 'se'
-        | 'sg'
-        | 'si'
-        | 'sk'
-        | 'sl'
-        | 'sm'
-        | 'sn'
-        | 'so'
-        | 'sq'
-        | 'sr'
-        | 'ss'
-        | 'st'
-        | 'su'
-        | 'sv'
-        | 'sw'
-        | 'ta'
-        | 'te'
-        | 'tg'
-        | 'th'
-        | 'ti'
-        | 'tk'
-        | 'tl'
-        | 'tn'
-        | 'to'
-        | 'tr'
-        | 'ts'
-        | 'tt'
-        | 'tw'
-        | 'ty'
-        | 'ug'
-        | 'uk'
-        | 'ur'
-        | 'uz'
-        | 've'
-        | 'vi'
-        | 'vo'
-        | 'wa'
-        | 'wo'
-        | 'xh'
-        | 'yi'
-        | 'yo'
-        | 'za'
-        | 'zh'
-        | 'zu'
-      )[]
-    | null;
-  merits?:
-    | {
-        type: 'certification' | 'education' | 'other';
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
-  media?:
-    | {
-        media: string | Providersmedia;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
+  id: string
+  internalStatus?: ('draft' | 'ready-for-review' | 'published') | null
+  user: string | User
+  name: string
+  title: string | ProviderTitle
+  bio?: string | null
+  gender?: ('female' | 'male' | 'non-binary') | null
+  spokenLanguages: (
+    | 'aa'
+    | 'ab'
+    | 'ae'
+    | 'af'
+    | 'ak'
+    | 'am'
+    | 'an'
+    | 'ar'
+    | 'as'
+    | 'av'
+    | 'ay'
+    | 'az'
+    | 'ba'
+    | 'be'
+    | 'bg'
+    | 'bh'
+    | 'bi'
+    | 'bm'
+    | 'bn'
+    | 'bo'
+    | 'br'
+    | 'bs'
+    | 'ca'
+    | 'ce'
+    | 'ch'
+    | 'co'
+    | 'cr'
+    | 'cs'
+    | 'cu'
+    | 'cv'
+    | 'cy'
+    | 'da'
+    | 'de'
+    | 'dv'
+    | 'dz'
+    | 'ee'
+    | 'el'
+    | 'en'
+    | 'eo'
+    | 'es'
+    | 'et'
+    | 'eu'
+    | 'fa'
+    | 'ff'
+    | 'fi'
+    | 'fj'
+    | 'fo'
+    | 'fr'
+    | 'fy'
+    | 'ga'
+    | 'gd'
+    | 'gl'
+    | 'gn'
+    | 'gu'
+    | 'gv'
+    | 'ha'
+    | 'he'
+    | 'hi'
+    | 'ho'
+    | 'hr'
+    | 'ht'
+    | 'hu'
+    | 'hy'
+    | 'hz'
+    | 'ia'
+    | 'id'
+    | 'ie'
+    | 'ig'
+    | 'ii'
+    | 'ik'
+    | 'io'
+    | 'is'
+    | 'it'
+    | 'iu'
+    | 'ja'
+    | 'jv'
+    | 'ka'
+    | 'kg'
+    | 'ki'
+    | 'kj'
+    | 'kk'
+    | 'kl'
+    | 'km'
+    | 'kn'
+    | 'ko'
+    | 'kr'
+    | 'ks'
+    | 'ku'
+    | 'kv'
+    | 'kw'
+    | 'ky'
+    | 'la'
+    | 'lb'
+    | 'lg'
+    | 'li'
+    | 'ln'
+    | 'lo'
+    | 'lt'
+    | 'lu'
+    | 'lv'
+    | 'mg'
+    | 'mh'
+    | 'mi'
+    | 'mk'
+    | 'ml'
+    | 'mn'
+    | 'mr'
+    | 'ms'
+    | 'mt'
+    | 'my'
+    | 'na'
+    | 'nb'
+    | 'nd'
+    | 'ne'
+    | 'ng'
+    | 'nl'
+    | 'nn'
+    | 'no'
+    | 'nr'
+    | 'nv'
+    | 'ny'
+    | 'oc'
+    | 'oj'
+    | 'om'
+    | 'or'
+    | 'os'
+    | 'pa'
+    | 'pi'
+    | 'pl'
+    | 'ps'
+    | 'pt'
+    | 'qu'
+    | 'rm'
+    | 'rn'
+    | 'ro'
+    | 'ru'
+    | 'rw'
+    | 'sa'
+    | 'sc'
+    | 'sd'
+    | 'se'
+    | 'sg'
+    | 'si'
+    | 'sk'
+    | 'sl'
+    | 'sm'
+    | 'sn'
+    | 'so'
+    | 'sq'
+    | 'sr'
+    | 'ss'
+    | 'st'
+    | 'su'
+    | 'sv'
+    | 'sw'
+    | 'ta'
+    | 'te'
+    | 'tg'
+    | 'th'
+    | 'ti'
+    | 'tk'
+    | 'tl'
+    | 'tn'
+    | 'to'
+    | 'tr'
+    | 'ts'
+    | 'tt'
+    | 'tw'
+    | 'ty'
+    | 'ug'
+    | 'uk'
+    | 'ur'
+    | 'uz'
+    | 've'
+    | 'vi'
+    | 'vo'
+    | 'wa'
+    | 'wo'
+    | 'xh'
+    | 'yi'
+    | 'yo'
+    | 'za'
+    | 'zh'
+    | 'zu'
+  )[]
+  methods: (string | ProviderMethod)[]
+  conditions: (string | ProviderCondition)[]
+  merits: {
+    type: 'certification' | 'education' | 'other'
+    value: string
+    id?: string | null
+  }[]
+  media: {
+    media: string | ProvidersMedia
+    id?: string | null
+  }[]
+  thumbhash?: string | null
+  prefix?: string | null
+  updatedAt: string
+  createdAt: string
+  _status?: ('draft' | 'published') | null
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
+  sizes?: {
+    thumbnail?: {
+      url?: string | null
+      width?: number | null
+      height?: number | null
+      mimeType?: string | null
+      filesize?: number | null
+      filename?: string | null
+    }
+    image?: {
+      url?: string | null
+      width?: number | null
+      height?: number | null
+      mimeType?: string | null
+      filesize?: number | null
+      filename?: string | null
+    }
+  }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "providersmedia".
+ * via the `definition` "provider-titles".
  */
-export interface Providersmedia {
-  id: string;
-  belongsTo: string | Provider;
-  prefix?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+export interface ProviderTitle {
+  id: string
+  name: string
+  providers?: (string | Provider)[] | null
+  updatedAt: string
+  createdAt: string
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "provider-methods".
+ */
+export interface ProviderMethod {
+  id: string
+  name: string
+  isFriskvardsEligible: boolean
+  type: 'PHYSICAL_HEALTH' | 'EMOTIONAL_HEALTH'
+  providers?: (string | Provider)[] | null
+  updatedAt: string
+  createdAt: string
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "provider-conditions".
+ */
+export interface ProviderCondition {
+  id: string
+  name: string
+  providers?: (string | Provider)[] | null
+  updatedAt: string
+  createdAt: string
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "providers-media".
+ */
+export interface ProvidersMedia {
+  id: string
+  belongsTo: string | Provider
+  thumbhash?: string | null
+  prefix?: string | null
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
   sizes?: {
     thumbnail?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
+      url?: string | null
+      width?: number | null
+      height?: number | null
+      mimeType?: string | null
+      filesize?: number | null
+      filename?: string | null
+    }
     image?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
+      url?: string | null
+      width?: number | null
+      height?: number | null
+      mimeType?: string | null
+      filesize?: number | null
+      filename?: string | null
+    }
+  }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "admins".
  */
 export interface Admin {
-  id: string;
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  password?: string | null;
+  id: string
+  updatedAt: string
+  createdAt: string
+  email: string
+  resetPasswordToken?: string | null
+  resetPasswordExpiration?: string | null
+  salt?: string | null
+  hash?: string | null
+  loginAttempts?: number | null
+  lockUntil?: string | null
+  password?: string | null
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-locked-documents".
+ */
+export interface PayloadLockedDocument {
+  id: string
+  document?:
+    | ({
+        relationTo: 'users'
+        value: string | User
+      } | null)
+    | ({
+        relationTo: 'provider'
+        value: string | Provider
+      } | null)
+    | ({
+        relationTo: 'provider-conditions'
+        value: string | ProviderCondition
+      } | null)
+    | ({
+        relationTo: 'provider-methods'
+        value: string | ProviderMethod
+      } | null)
+    | ({
+        relationTo: 'provider-titles'
+        value: string | ProviderTitle
+      } | null)
+    | ({
+        relationTo: 'providers-media'
+        value: string | ProvidersMedia
+      } | null)
+    | ({
+        relationTo: 'admins'
+        value: string | Admin
+      } | null)
+  globalSlug?: string | null
+  user: {
+    relationTo: 'admins'
+    value: string | Admin
+  }
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: string;
+  id: string
   user: {
-    relationTo: 'admins';
-    value: string | Admin;
-  };
-  key?: string | null;
+    relationTo: 'admins'
+    value: string | Admin
+  }
+  key?: string | null
   value?:
     | {
-        [k: string]: unknown;
+        [k: string]: unknown
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null;
-  updatedAt: string;
-  createdAt: string;
+    | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: string;
-  name?: string | null;
-  batch?: number | null;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  name?: string | null
+  batch?: number | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "auth".
  */
 export interface Auth {
-  [k: string]: unknown;
+  [k: string]: unknown
 }
-
 
 declare module 'payload' {
   export interface GeneratedTypes extends Config {}
