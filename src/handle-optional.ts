@@ -7,10 +7,8 @@ import ts from 'typescript'
 export function removeNullFromOptionalProperties(interfaceNode: ts.InterfaceDeclaration): ts.InterfaceDeclaration {
   // Map through each member of the interface
   const updatedMembers = interfaceNode.members.map(member => {
-    // Ensure it's a property signature and it has a question mark (i.e., optional)
     if (ts.isPropertySignature(member) && member.questionToken && member.type) {
       const updatedType = removeNullFromUnionIfOptional(member.type)
-
       // Update the property signature with the new type (if it was modified)
       return ts.factory.updatePropertySignature(
         member,
@@ -58,4 +56,37 @@ function removeNullFromUnionIfOptional(typeNode: ts.TypeNode): ts.TypeNode {
   }
 
   return typeNode
+}
+
+export function removeOptionalFromArrayProperties(interfaceNode: ts.InterfaceDeclaration): ts.InterfaceDeclaration {
+  // Map through each member of the interface
+  const updatedMembers = interfaceNode.members.map(member => {
+    // Ensure it's a property signature and it has a question mark (i.e., optional)
+    if (ts.isPropertySignature(member) && member.questionToken && member.type) {
+      const isArray = ts.isArrayTypeNode(member.type)
+
+      // If the type is an array, remove the optional modifier (question mark)
+      if (isArray) {
+        return ts.factory.updatePropertySignature(
+          member,
+          member.modifiers,
+          member.name,
+          undefined, // This removes the optional modifier
+          member.type,
+        )
+      }
+    }
+
+    return member
+  })
+
+  // Return a new InterfaceDeclaration with the updated members
+  return ts.factory.updateInterfaceDeclaration(
+    interfaceNode,
+    interfaceNode.modifiers,
+    interfaceNode.name,
+    interfaceNode.typeParameters,
+    interfaceNode.heritageClauses,
+    updatedMembers,
+  )
 }

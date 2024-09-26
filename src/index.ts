@@ -6,15 +6,15 @@ import * as Codegen from '@sinclair/typebox-codegen'
 import * as fs from 'fs'
 import * as prettier from 'prettier'
 import ts from 'typescript'
+import { removeNullFromOptionalProperties, removeOptionalFromArrayProperties } from './handle-optional'
 import { generateRecrusivePattern } from './recursive-pattern'
-import { removeNullFromOptionalProperties } from './remove-null-if-optional'
 
 program
   .requiredOption('-i, --input <input>', 'input file')
   .requiredOption('-o, --output <output>', 'output file')
   .option('-e, --exclude <exclude>', 'exclude interfaces')
   .option('-p, --payload', 'exclude general interfaces from payload')
-  .option('-rmnifo, --remove-null-if-optional', 'remove null from optional properties')
+  .option('-ho, --handle-optional', 'remove null from optional properties and remove optional from array properties')
 
 program.parse()
 
@@ -106,8 +106,10 @@ async function buildInterfaceCode() {
 
   for (const [interfaceName, interfaceDeclaration] of interfaceDeclarations) {
     let updatedInterface = interfaceDeclaration
-    if (options.removeNullIfOptional) {
+
+    if (options.handleOptional) {
       updatedInterface = removeNullFromOptionalProperties(interfaceDeclaration)
+      updatedInterface = removeOptionalFromArrayProperties(updatedInterface)
     }
 
     const updatedCode = printer.printNode(ts.EmitHint.Unspecified, updatedInterface, sourceFile) + '\n\n'
