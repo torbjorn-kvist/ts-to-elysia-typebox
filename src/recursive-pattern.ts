@@ -1,3 +1,5 @@
+const alreadyBuildDepencyList: Record<string, string> = {}
+
 export function generateRecrusivePattern(
   code: string,
   recursiveDependencies: Record<string, string[]>,
@@ -46,7 +48,6 @@ export function generateRecrusivePattern(
     dependencies: string[],
   ): string {
     const recursiveDependenciesList = Object.keys(recursiveDependencies)
-
     const refCalls = recursiveDependenciesList
       .map(dep => {
         if (dependencies.includes(dep)) {
@@ -66,9 +67,13 @@ export function generateRecrusivePattern(
           }
           return `__${subDep}(This)`
         })
+        if (alreadyBuildDepencyList[dep]) return alreadyBuildDepencyList[dep]
+
         return `__${dep}(${depCalls.join(', ')})`
       })
       .join(', ')
+
+    alreadyBuildDepencyList[name] = ` __${name}(${refCalls})`
     return `export const ${name} = Type.Recursive((This) => __${name}(${refCalls}));\nexport type ${name} = Static<typeof ${name}>;`
   }
 

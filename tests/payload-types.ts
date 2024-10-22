@@ -12,12 +12,17 @@ export interface Config {
   }
   collections: {
     users: User
+    carousel: Carousel
+    media: Media
     provider: Provider
+    'provider-metadata': ProviderMetadatum
     'provider-conditions': ProviderCondition
     'provider-methods': ProviderMethod
     'provider-titles': ProviderTitle
     'providers-media': ProvidersMedia
+    bookings: Booking
     admins: Admin
+    organizations: Organization
     'payload-locked-documents': PayloadLockedDocument
     'payload-preferences': PayloadPreference
     'payload-migrations': PayloadMigration
@@ -57,6 +62,7 @@ export interface User {
   id: string
   email: string
   firebaseUserUID: string
+  organization?: (string | null) | Organization
   name?: string | null
   bio?: string | null
   gender?: ('female' | 'male' | 'non-binary') | null
@@ -485,6 +491,117 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "organizations".
+ */
+export interface Organization {
+  id: string
+  name: string
+  receiptManagerEmail: string
+  friskvardsYearlyPot: {
+    amount: number
+    currency: 'SEK'
+  }
+  monthlyPot: {
+    amount: number
+    currency: 'SEK'
+  }
+  users: {
+    email: string
+    role: 'ADMIN' | 'EMPLOYEE'
+    status: 'INVITE_SENT' | 'INVITE_ACCEPTED'
+    user?: (string | null) | User
+    id?: string | null
+  }[]
+  thumbhash?: string | null
+  prefix?: string | null
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
+  sizes?: {
+    thumbnail?: {
+      url?: string | null
+      width?: number | null
+      height?: number | null
+      mimeType?: string | null
+      filesize?: number | null
+      filename?: string | null
+    }
+    image?: {
+      url?: string | null
+      width?: number | null
+      height?: number | null
+      mimeType?: string | null
+      filesize?: number | null
+      filename?: string | null
+    }
+  }
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "carousel".
+ */
+export interface Carousel {
+  id: string
+  name: string
+  items: {
+    image: string | Media
+    title: string
+    category: string
+    subtitle: string
+    link: string
+    id?: string | null
+  }[]
+  updatedAt: string
+  createdAt: string
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: string
+  thumbhash?: string | null
+  prefix?: string | null
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
+  sizes?: {
+    thumbnail?: {
+      url?: string | null
+      width?: number | null
+      height?: number | null
+      mimeType?: string | null
+      filesize?: number | null
+      filename?: string | null
+    }
+    image?: {
+      url?: string | null
+      width?: number | null
+      height?: number | null
+      mimeType?: string | null
+      filesize?: number | null
+      filename?: string | null
+    }
+  }
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "provider".
  */
 export interface Provider {
@@ -698,15 +815,7 @@ export interface Provider {
         id?: string | null
       }[]
     | null
-  cronofy?:
-    | {
-        [k: string]: unknown
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null
+  metadata?: (string | null) | ProviderMetadatum
   thumbhash?: string | null
   prefix?: string | null
   updatedAt: string
@@ -747,7 +856,6 @@ export interface Provider {
 export interface ProviderTitle {
   id: string
   name: string
-  providers?: (string | Provider)[] | null
   updatedAt: string
   createdAt: string
 }
@@ -760,7 +868,6 @@ export interface ProviderMethod {
   name: string
   isFriskvardsEligible: boolean
   type: 'PHYSICAL_HEALTH' | 'EMOTIONAL_HEALTH'
-  providers?: (string | Provider)[] | null
   updatedAt: string
   createdAt: string
 }
@@ -771,7 +878,6 @@ export interface ProviderMethod {
 export interface ProviderCondition {
   id: string
   name: string
-  providers?: (string | Provider)[] | null
   updatedAt: string
   createdAt: string
 }
@@ -816,6 +922,277 @@ export interface ProvidersMedia {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "provider-metadata".
+ */
+export interface ProviderMetadatum {
+  id: string
+  provider: string | Provider
+  title?: (string | null) | ProviderTitle
+  gender?: ('female' | 'male' | 'non-binary') | null
+  spokenLanguages?:
+    | (
+        | 'aa'
+        | 'ab'
+        | 'ae'
+        | 'af'
+        | 'ak'
+        | 'am'
+        | 'an'
+        | 'ar'
+        | 'as'
+        | 'av'
+        | 'ay'
+        | 'az'
+        | 'ba'
+        | 'be'
+        | 'bg'
+        | 'bh'
+        | 'bi'
+        | 'bm'
+        | 'bn'
+        | 'bo'
+        | 'br'
+        | 'bs'
+        | 'ca'
+        | 'ce'
+        | 'ch'
+        | 'co'
+        | 'cr'
+        | 'cs'
+        | 'cu'
+        | 'cv'
+        | 'cy'
+        | 'da'
+        | 'de'
+        | 'dv'
+        | 'dz'
+        | 'ee'
+        | 'el'
+        | 'en'
+        | 'eo'
+        | 'es'
+        | 'et'
+        | 'eu'
+        | 'fa'
+        | 'ff'
+        | 'fi'
+        | 'fj'
+        | 'fo'
+        | 'fr'
+        | 'fy'
+        | 'ga'
+        | 'gd'
+        | 'gl'
+        | 'gn'
+        | 'gu'
+        | 'gv'
+        | 'ha'
+        | 'he'
+        | 'hi'
+        | 'ho'
+        | 'hr'
+        | 'ht'
+        | 'hu'
+        | 'hy'
+        | 'hz'
+        | 'ia'
+        | 'id'
+        | 'ie'
+        | 'ig'
+        | 'ii'
+        | 'ik'
+        | 'io'
+        | 'is'
+        | 'it'
+        | 'iu'
+        | 'ja'
+        | 'jv'
+        | 'ka'
+        | 'kg'
+        | 'ki'
+        | 'kj'
+        | 'kk'
+        | 'kl'
+        | 'km'
+        | 'kn'
+        | 'ko'
+        | 'kr'
+        | 'ks'
+        | 'ku'
+        | 'kv'
+        | 'kw'
+        | 'ky'
+        | 'la'
+        | 'lb'
+        | 'lg'
+        | 'li'
+        | 'ln'
+        | 'lo'
+        | 'lt'
+        | 'lu'
+        | 'lv'
+        | 'mg'
+        | 'mh'
+        | 'mi'
+        | 'mk'
+        | 'ml'
+        | 'mn'
+        | 'mr'
+        | 'ms'
+        | 'mt'
+        | 'my'
+        | 'na'
+        | 'nb'
+        | 'nd'
+        | 'ne'
+        | 'ng'
+        | 'nl'
+        | 'nn'
+        | 'no'
+        | 'nr'
+        | 'nv'
+        | 'ny'
+        | 'oc'
+        | 'oj'
+        | 'om'
+        | 'or'
+        | 'os'
+        | 'pa'
+        | 'pi'
+        | 'pl'
+        | 'ps'
+        | 'pt'
+        | 'qu'
+        | 'rm'
+        | 'rn'
+        | 'ro'
+        | 'ru'
+        | 'rw'
+        | 'sa'
+        | 'sc'
+        | 'sd'
+        | 'se'
+        | 'sg'
+        | 'si'
+        | 'sk'
+        | 'sl'
+        | 'sm'
+        | 'sn'
+        | 'so'
+        | 'sq'
+        | 'sr'
+        | 'ss'
+        | 'st'
+        | 'su'
+        | 'sv'
+        | 'sw'
+        | 'ta'
+        | 'te'
+        | 'tg'
+        | 'th'
+        | 'ti'
+        | 'tk'
+        | 'tl'
+        | 'tn'
+        | 'to'
+        | 'tr'
+        | 'ts'
+        | 'tt'
+        | 'tw'
+        | 'ty'
+        | 'ug'
+        | 'uk'
+        | 'ur'
+        | 'uz'
+        | 've'
+        | 'vi'
+        | 'vo'
+        | 'wa'
+        | 'wo'
+        | 'xh'
+        | 'yi'
+        | 'yo'
+        | 'za'
+        | 'zh'
+        | 'zu'
+      )[]
+    | null
+  methods?: (string | ProviderMethod)[] | null
+  conditions?: (string | ProviderCondition)[] | null
+  firstApprovedAt?: string | null
+  cronofy?:
+    | {
+        [k: string]: unknown
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null
+  nextAvailableTime?: string | null
+  updatedAt: string
+  createdAt: string
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bookings".
+ */
+export interface Booking {
+  id: string
+  user: string | User
+  provider: string | Provider
+  method?: (string | null) | ProviderMethod
+  startTime: string
+  endTime: string
+  lastRefundDate: string
+  review?: {
+    rating?: number | null
+    comment?: string | null
+  }
+  payment: {
+    method: 'stripe' | 'company'
+    amount: number
+    currency: 'SEK'
+  }
+  status:
+    | 'booked'
+    | 'cancelled-by-user'
+    | 'cancelled-and-refunded-by-user'
+    | 'cancelled-and-refunded-by-provider'
+    | 'refunded'
+  cancelledAt?: string | null
+  agora?:
+    | {
+        [k: string]: unknown
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null
+  stripe?:
+    | {
+        [k: string]: unknown
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null
+  cronofy?:
+    | {
+        [k: string]: unknown
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null
+  updatedAt: string
+  createdAt: string
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "admins".
  */
 export interface Admin {
@@ -843,8 +1220,20 @@ export interface PayloadLockedDocument {
         value: string | User
       } | null)
     | ({
+        relationTo: 'carousel'
+        value: string | Carousel
+      } | null)
+    | ({
+        relationTo: 'media'
+        value: string | Media
+      } | null)
+    | ({
         relationTo: 'provider'
         value: string | Provider
+      } | null)
+    | ({
+        relationTo: 'provider-metadata'
+        value: string | ProviderMetadatum
       } | null)
     | ({
         relationTo: 'provider-conditions'
@@ -863,8 +1252,16 @@ export interface PayloadLockedDocument {
         value: string | ProvidersMedia
       } | null)
     | ({
+        relationTo: 'bookings'
+        value: string | Booking
+      } | null)
+    | ({
         relationTo: 'admins'
         value: string | Admin
+      } | null)
+    | ({
+        relationTo: 'organizations'
+        value: string | Organization
       } | null)
   globalSlug?: string | null
   user: {
