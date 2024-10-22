@@ -1,6 +1,6 @@
 {
   "name": "ts-to-elysia-typebox",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "bin": {
     "ts-to-elysia-typebox": "dist/index.js"
   },
