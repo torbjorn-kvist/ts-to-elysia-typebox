@@ -1,15 +1,23 @@
-import ts from 'typescript'
+import * as ts from 'typescript'
+
 /**
  * Removes `null` from union types for optional properties in an InterfaceDeclaration.
  * @param node The interface declaration to process.
  * @returns A new InterfaceDeclaration with null removed from optional properties.
  */
 export function removeNullFromOptionalProperties(interfaceNode: ts.InterfaceDeclaration): ts.InterfaceDeclaration {
-  // Map through each member of the interface
   const updatedMembers = interfaceNode.members.map(member => {
     if (ts.isPropertySignature(member) && member.questionToken && member.type) {
       const updatedType = removeNullFromUnionIfOptional(member.type)
-      // Update the property signature with the new type (if it was modified)
+      return ts.factory.updatePropertySignature(
+        member,
+        member.modifiers,
+        member.name,
+        member.questionToken,
+        updatedType,
+      )
+    } else if (ts.isPropertySignature(member) && member.type && ts.isTypeLiteralNode(member.type)) {
+      const updatedType = updateTypeLiteralNode(member.type)
       return ts.factory.updatePropertySignature(
         member,
         member.modifiers,
@@ -18,11 +26,9 @@ export function removeNullFromOptionalProperties(interfaceNode: ts.InterfaceDecl
         updatedType,
       )
     }
-
     return member
   })
 
-  // Return a new InterfaceDeclaration with the updated members
   return ts.factory.updateInterfaceDeclaration(
     interfaceNode,
     interfaceNode.modifiers,
@@ -55,7 +61,51 @@ function removeNullFromUnionIfOptional(typeNode: ts.TypeNode): ts.TypeNode {
     return ts.factory.createUnionTypeNode(typesWithoutNull)
   }
 
+  // Check if the type is a type literal (object type)
+  if (ts.isTypeLiteralNode(typeNode)) {
+    const updatedMembers = typeNode.members.map(member => {
+      if (ts.isPropertySignature(member) && member.questionToken && member.type) {
+        const updatedType = removeNullFromUnionIfOptional(member.type)
+        return ts.factory.updatePropertySignature(
+          member,
+          member.modifiers,
+          member.name,
+          member.questionToken,
+          updatedType,
+        )
+      }
+      return member
+    })
+    return ts.factory.createTypeLiteralNode(updatedMembers)
+  }
+
   return typeNode
+}
+
+function updateTypeLiteralNode(typeNode: ts.TypeLiteralNode): ts.TypeLiteralNode {
+  const updatedMembers = typeNode.members.map(member => {
+    if (ts.isPropertySignature(member) && member.questionToken && member.type) {
+      const updatedType = removeNullFromUnionIfOptional(member.type)
+      return ts.factory.updatePropertySignature(
+        member,
+        member.modifiers,
+        member.name,
+        member.questionToken,
+        updatedType,
+      )
+    } else if (ts.isPropertySignature(member) && member.type && ts.isTypeLiteralNode(member.type)) {
+      const updatedType = updateTypeLiteralNode(member.type)
+      return ts.factory.updatePropertySignature(
+        member,
+        member.modifiers,
+        member.name,
+        member.questionToken,
+        updatedType,
+      )
+    }
+    return member
+  })
+  return ts.factory.createTypeLiteralNode(updatedMembers)
 }
 
 export function removeOptionalFromArrayProperties(interfaceNode: ts.InterfaceDeclaration): ts.InterfaceDeclaration {

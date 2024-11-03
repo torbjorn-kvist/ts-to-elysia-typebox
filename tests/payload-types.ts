@@ -1129,6 +1129,11 @@ export interface ProviderMetadatum {
     | number
     | boolean
     | null
+  stripe?: {
+    accountId?: string | null
+    completed?: boolean | null
+    onboarding?: boolean | null
+  }
   nextAvailableTime?: string | null
   updatedAt: string
   createdAt: string
@@ -1151,15 +1156,21 @@ export interface Booking {
   }
   payment: {
     method: 'stripe' | 'company'
-    amount: number
-    currency: 'SEK'
+    totalAmount: number
+    providerAmount: number
+    expiresAt?: string | null
+    currency: 'sek'
   }
   status:
-    | 'booked'
+    | 'created'
+    | 'waiting'
+    | 'paid'
+    | 'error'
     | 'cancelled-by-user'
     | 'cancelled-and-refunded-by-user'
     | 'cancelled-and-refunded-by-provider'
     | 'refunded'
+  error?: string | null
   cancelledAt?: string | null
   agora?:
     | {
@@ -1170,15 +1181,10 @@ export interface Booking {
     | number
     | boolean
     | null
-  stripe?:
-    | {
-        [k: string]: unknown
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null
+  stripe?: {
+    paymentIntent?: string | null
+    receiptUrl?: string | null
+  }
   cronofy?:
     | {
         [k: string]: unknown
